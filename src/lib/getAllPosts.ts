@@ -1,5 +1,5 @@
 import API from "@/config/api"
-import next from "next"
+
 
 export default async function getAllPosts() {
   const controller: AbortController = new AbortController
@@ -7,23 +7,26 @@ export default async function getAllPosts() {
 
   try {
     const response: Response = await fetch(`${API}/${endpoint}`, {
+      next: {revalidate: 60},
       signal: controller.signal
     })
 
-    if (!response.ok) throw new Error(`Connection Error HTTP status code ${response.status} `)
+    if (!response.ok) return undefined
   
     return response.json()
 
   } catch (error) {
 
     if (error instanceof SyntaxError) {
+      controller.abort()
       console.log(`JSON Error: ${error.message}`);
     } else if (error instanceof ReferenceError) {
+      controller.abort()
       console.log(error.message);
     } else {
+      controller.abort()
       console.log(error);
     }
 
-    controller.abort
   }
 }

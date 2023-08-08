@@ -1,12 +1,11 @@
 import API from "@/config/api";
 
-export default async function getUsers(userId: string) {
+export default async function getAllUsers() {
   const controller: AbortController = new AbortController()
-  const endpoint: string = `users/${userId}`
+  const endpoint: string = `users`
 
   try {
     const response: Response = await fetch(`${API}/${endpoint}`, {
-      cache: "no-store",
       signal: controller.signal
     })
    

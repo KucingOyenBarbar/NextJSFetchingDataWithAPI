@@ -1,3 +1,4 @@
+import getAllPosts from "@/lib/getAllPosts";
 import getCommentPosts from "@/lib/getCommentPosts";
 import getPosts from "@/lib/getPosts";
 import getUsers from "@/lib/getUsers";
@@ -5,8 +6,8 @@ import PostComment from "./components/PostComment";
 import Post from "./components/Post";
 import { Col, Container, Row } from "@/components/boostrap";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 type Params = { params: { postId: string } };
 
@@ -22,13 +23,22 @@ export async function generateMetadata({
   };
 }
 
+export async function generateStaticParams() {
+  const postsData: Promise<Posts[]> = getAllPosts();
+  const posts: Posts[] = await postsData;
+
+  return posts?.map((post) => ({
+    postId: post.id.toString(),
+  }));
+}
+
 export default async function PostsDetails({ params: { postId } }: Params) {
   const postsData: Promise<Posts> = getPosts(postId);
   const posts: Posts = await postsData;
-  if (!posts) return notFound();
-
   const userData: Promise<User> = getUsers(posts?.userId);
   const user: User = await userData;
+
+  if (!posts) return notFound();
 
   const commentsData: Promise<Comments[]> = getCommentPosts(postId);
 

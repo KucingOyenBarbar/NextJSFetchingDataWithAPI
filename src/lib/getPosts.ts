@@ -1,10 +1,14 @@
 import API from "@/config/api"
 
 export default async function getPosts(postId: string) {
+  const controller: AbortController = new AbortController()
   const endpoint: string = `posts/${postId}`
 
   try {
-    const response: Response = await fetch(`${API}/${endpoint}`)
+    const response: Response = await fetch(`${API}/${endpoint}`, {
+      cache: "no-store",
+      signal: controller.signal
+    })
 
     if (!response.ok) return
   
@@ -12,10 +16,13 @@ export default async function getPosts(postId: string) {
 
   } catch (error) {
     if (error instanceof SyntaxError) {
+      controller.abort()
       console.log(`JSON Error: ${error.message}`);
     } else if (error instanceof ReferenceError) {
+      controller.abort()
       console.log(error.message);
     } else {
+      controller.abort()
       console.log(error);
     }
   }
